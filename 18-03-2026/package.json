@@ -1,0 +1,23 @@
+{
+  "name": "18-03-2026",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/bella1sa/codificacao-backend#readme",
+  "bugs": {
+    "url": "https://github.com/bella1sa/codificacao-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bella1sa/codificacao-backend.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -11,7 +11,7 @@ let alunos = [
    res.json(usuarios)
   
 
-/* */
+/* */ 
  app.get('/alunos/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const alunos = alunos.find(a => a.id === id)
