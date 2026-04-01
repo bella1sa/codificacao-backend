@@ -32,10 +32,28 @@ route.get("/:id", (req, res) => {
     res.json(fruit)
 })
 
-
-
-
-
-
-
 export default route
+
+route.put('/:id', (req, res) => {
+  const fruta = fruitService.atualizarFruta(req.params.id, req.body);
+  if (!fruta) {
+    return res.status(404).json({ message: 'Fruta não encontrada' });
+  }
+  res.json(fruta);
+});
+
+route.patch('/:id', (req, res) => {
+  const fruta = fruitService.atualizarParcial(req.params.id, req.body);
+  if (!fruta) {
+    return res.status(404).json({ message: 'Fruta não encontrada' });
+  }
+  res.json(fruta);
+});
+
+route.delete('/:id', (req, res) => {
+  const fruta = fruitService.deletarFruta(req.params.id);
+  if (!fruta) {
+    return res.status(404).json({ message: 'Fruta não encontrada' });
+  }
+  res.json({ message: 'Fruta deletada com sucesso' });
+});
