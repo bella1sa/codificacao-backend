@@ -3,10 +3,9 @@ const btnSalvar = document.getElementById('btn-salvar');
 const statusTexto = document.getElementById('status');
 const listaNotas = document.getElementById('lista-notas');
 
-// Variável para guardar o ID da nota se estivermos editando
+
 let idNotaEditando = null;
 
-// Carrega as notas assim que a página abre
 window.addEventListener('DOMContentLoaded', carregarNotas);
 
 async function carregarNotas() {
@@ -20,7 +19,7 @@ async function carregarNotas() {
 }
 
 function renderizarNotas(notas) {
-    listaNotas.innerHTML = ''; // Limpa a lista atual
+    listaNotas.innerHTML = '';
 
     if (notas.length === 0) {
         listaNotas.innerHTML = '<p style="color: #999;">Nenhuma nota salva ainda.</p>';
@@ -54,9 +53,9 @@ btnSalvar.addEventListener('click', async () => {
 
     try {
         let url = '/api/notas';
-        let method = 'POST'; // Padrão é criar (POST)
+        let method = 'POST'; //(POST)
 
-        // Se tivermos um ID salvo, significa que estamos editando (PUT)
+        // (PUT)
         if (idNotaEditando) {
             url = `/api/notas/${idNotaEditando}`;
             method = 'PUT';
@@ -69,13 +68,13 @@ btnSalvar.addEventListener('click', async () => {
         });
 
         if (resposta.ok) {
-            caixaTexto.value = ''; // Limpa a caixa
-            idNotaEditando = null; // Reseta o estado de edição
-            btnSalvar.textContent = "Adicionar Nota"; // Volta o botão ao normal
+            caixaTexto.value = ''; 
+            idNotaEditando = null;
+            btnSalvar.textContent = "Adicionar Nota"; 
             statusTexto.textContent = "✅ Salvo com sucesso!";
             setTimeout(() => statusTexto.textContent = "", 2000);
             
-            carregarNotas(); // Recarrega a lista
+            carregarNotas();
         }
     } catch (erro) {
         statusTexto.textContent = "❌ Erro ao salvar.";
@@ -83,11 +82,11 @@ btnSalvar.addEventListener('click', async () => {
     }
 });
 
-// Joga o texto da nota para a caixa de texto para ser modificado
+
 window.prepararEdicao = (id, texto) => {
     caixaTexto.value = texto;
     idNotaEditando = id;
-    btnSalvar.textContent = "Atualizar Nota"; // Muda o texto do botão para fazer sentido
+    btnSalvar.textContent = "Atualizar Nota"; 
     caixaTexto.focus();
 };
 
@@ -101,7 +100,7 @@ window.excluirNota = async (id) => {
         });
 
         if (resposta.ok) {
-            carregarNotas(); // Recarrega a lista após excluir
+            carregarNotas(); 
         }
     } catch (erro) {
         console.error('Erro ao excluir nota:', erro);

@@ -79,7 +79,7 @@ h2 {
 }
 
 .nota-texto {
-    white-space: pre-wrap; /* Mantém as quebras de linha do texto */
+    white-space: pre-wrap; 
     margin-bottom: 15px;
     color: #444;
 }
