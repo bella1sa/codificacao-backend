@@ -13,12 +13,12 @@ let chats = [
   {
     id: "order-101",
     orderStatus: "Em andamento",
-    agent: { name: "Mariana Santos", id: "user_agent_1", phone: "(11) 98888-7777" },
-    customer: { id: "user_client_1", name: "Ana Souza" },
+    agent: { name: "Yan Ferreira", id: "user_agent_1", phone: "(11) 98888-7777" },
+    customer: { id: "user_client_1", name: "Cecilia Souza" },
     messages: [
       { id: 1, sender: "system", text: "Pedido retirado pelo entregador.", timestamp: "20:15" },
-      { id: 1, sender: "agent", text: "Olá Ana, estou a caminho do seu endereço!", timestamp: "20:16" },
-      { id: 3, sender: "customer", text: "Legal, Mariana! O interfone está com defeito, pode me ligar quando chegar?", timestamp: "20:18" },
+      { id: 1, sender: "agent", text: "Olá Cecilia, estou a caminho do seu endereço!", timestamp: "20:16" },
+      { id: 3, sender: "customer", text: "Legal, Yan! O interfone está com defeito, pode me ligar quando chegar?", timestamp: "20:18" },
       { id: 4, sender: "agent", text: "Claro! Já estou no caminho. Vou te ligar assim que eu chegar na portaria.", timestamp: "20:19" },
       { id: 5, sender: "system", text: "Status atualizado para 'Em andamento'. Atendimento em suporte ativo.", timestamp: "20:20" }
     ]
