@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-Br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Chat - Client</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-
 <body class="bg-gray-100 h-screen flex flex-col items-center justify-center p-4">
-
 
   <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-[500px]">
     <div class="bg-red-500 text-white p-4">
@@ -16,17 +14,80 @@
       <p id="order-status" class="text-sm opacity-90">Status: Carregando...</p>
     </div>
 
-
     <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50">
       </div>
-
 
     <div class="p-3 bg-white border-t flex gap-2">
       <input id="msg-input" type="text" placeholder="Digite uma mensagem como 'customer'..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
       <button id="send-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600">Enviar</button>
     </div>
   </div>
-</body>  
 
+  <script>
+    const orderId = 'order-101'; // Focado no primeiro pedido mockado
+    const messagesContainer = document.getElementById('chat-messages');
+    const statusLabel = document.getElementById('order-status');
+    const msgInput = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
 
+    // Função para renderizar as mensagens na tela
+    function renderMessages(chat) {
+      statusLabel.textContent = `Status: ${chat.orderStatus} | Entregador: ${chat.driver?.name || 'Não atribuído'}`;
+      messagesContainer.innerHTML = '';
+
+      chat.messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = `max-w-[80%] rounded-lg p-3 text-sm shadow-sm `;
+        
+        if (msg.sender === 'customer') {
+          div.className += 'bg-red-500 text-white self-end ml-auto';
+        } else if (msg.sender === 'driver') {
+          div.className += 'bg-gray-200 text-gray-800 self-start';
+        } else {
+          div.className += 'bg-yellow-100 text-yellow-800 text-center mx-auto my-2 w-full max-w-xs';
+        }
+
+        div.innerHTML = `
+          <p class="font-bold text-[11px] opacity-75">${msg.sender.toUpperCase()}</p>
+          <p>${msg.text}</p>
+          <span class="text-[10px] block text-right mt-1 opacity-60">${msg.timestamp}</span>
+        `;
+        messagesContainer.appendChild(div);
+      });
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Buscar dados do servidor
+    async function loadChat() {
+      const res = await fetch(`/api/chats/${orderId}`);
+      const chat = await res.json();
+      renderMessages(chat);
+    }
+
+    // Enviar nova mensagem
+    async function sendMessage() {
+      const text = msgInput.value.trim();
+      if (!text) return;
+
+      const res = await fetch(`/api/chats/${orderId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender: 'customer', text })
+      });
+
+      if (res.ok) {
+        msgInput.value = '';
+        loadChat(); // Recarrega o chat atualizado
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+    // Carga inicial
+    loadChat();
+    // Atualiza o chat a cada 3 segundos de forma simples (polling)
+    setInterval(loadChat, 3000);
+  </script>
+</body>
 </html>
