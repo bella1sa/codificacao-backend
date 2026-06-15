@@ -9,17 +9,33 @@
 <body class="bg-gray-100 h-screen flex flex-col items-center justify-center p-4">
 
   <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-[500px]">
-    <div class="bg-red-500 text-white p-4">
+    <div class="bg-slate-700 text-white p-4">
       <h1 class="text-lg font-bold">Chat de Entrega - Pedido #101</h1>
-      <p id="order-status" class="text-sm opacity-90">Status: Carregando...</p>
+
+      <div class="mt-3 flex items-center justify-between gap-3">
+        <p id="order-status" class="text-sm opacity-90">Participantes: Carregando...</p>
+        <span id="active-badge" class="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">ATIVO</span>
+      </div>
+
+      <!-- Seletor de perfil -->
+      <div class="mt-3 flex gap-2">
+        <button id="role-customer-btn" type="button" class="flex-1 bg-slate-600 text-white text-sm font-semibold py-2 rounded-lg transition">
+          Cliente (Ana)
+        </button>
+        <button id="role-driver-btn" type="button" class="flex-1 bg-slate-600/40 text-white/90 text-sm font-semibold py-2 rounded-lg transition">
+          Atendente (Carlos)
+        </button>
+      </div>
     </div>
+
 
     <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50">
       </div>
 
+
     <div class="p-3 bg-white border-t flex gap-2">
-      <input id="msg-input" type="text" placeholder="Digite uma mensagem como 'customer'..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
-      <button id="send-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600">Enviar</button>
+      <input id="msg-input" type="text" placeholder="Digite uma mensagem como 'customer'..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500">
+      <button id="send-btn" class="bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-700">Enviar</button>
     </div>
   </div>
 
@@ -29,39 +45,84 @@
     const statusLabel = document.getElementById('order-status');
     const msgInput = document.getElementById('msg-input');
     const sendBtn = document.getElementById('send-btn');
+    const activeBadge = document.getElementById('active-badge');
+
+    let currentRole = 'customer';
+
+    function setRole(role) {
+      currentRole = role;
+
+      const customerBtn = document.getElementById('role-customer-btn');
+      const driverBtn = document.getElementById('role-driver-btn');
+
+      const isCustomer = role === 'customer';
+
+      if (customerBtn) {
+        customerBtn.className = `flex-1 ${isCustomer ? 'bg-slate-600 text-white' : 'bg-slate-600/40 text-white/90'} text-sm font-semibold py-2 rounded-lg transition`;
+      }
+
+      if (driverBtn) {
+        driverBtn.className = `flex-1 ${!isCustomer ? 'bg-slate-600 text-white' : 'bg-slate-600/40 text-white/90'} text-sm font-semibold py-2 rounded-lg transition`;
+      }
+
+      msgInput.placeholder = isCustomer ? "Digite uma mensagem como 'customer'..." : "Digite uma mensagem como 'driver'...";
+    }
 
     // Função para renderizar as mensagens na tela
-    function renderMessages(chat) {
-      statusLabel.textContent = `Status: ${chat.orderStatus} | Entregador: ${chat.driver?.name || 'Não atribuído'}`;
+    function renderChat(chat) {
+      const customerName = chat.customer?.name;
+      const agentName = chat.agent?.name;
+
+      statusLabel.textContent =
+        customerName && agentName
+          ? `Participantes: ${customerName} & ${agentName}`
+          : customerName
+            ? `Participantes: ${customerName}`
+            : 'Participantes: Carregando...';
+
+      activeBadge.textContent = chat.orderStatus === 'Em andamento' ? 'ATIVO' : chat.orderStatus || 'ATIVO';
       messagesContainer.innerHTML = '';
 
       chat.messages.forEach(msg => {
         const div = document.createElement('div');
-        div.className = `max-w-[80%] rounded-lg p-3 text-sm shadow-sm `;
-        
-        if (msg.sender === 'customer') {
-          div.className += 'bg-red-500 text-white self-end ml-auto';
-        } else if (msg.sender === 'driver') {
-          div.className += 'bg-gray-200 text-gray-800 self-start';
+
+        // sender mapeado com o servidor (system/agent/customer)
+        const sender = msg.sender;
+
+        if (sender === 'customer') {
+          // cliente → azul à direita
+          div.className = 'max-w-[80%] rounded-lg p-3 text-sm shadow-sm bg-blue-600 text-white self-end ml-auto';
+        } else if (sender === 'agent') {
+          // atendente → branco/verde à esquerda
+          div.className = 'max-w-[80%] rounded-lg p-3 text-sm shadow-sm bg-green-600 text-white self-start';
         } else {
-          div.className += 'bg-yellow-100 text-yellow-800 text-center mx-auto my-2 w-full max-w-xs';
+          // sistema → cinza centralizado
+          div.className = 'bg-gray-200 text-gray-800 text-center mx-auto my-2 w-full max-w-xs rounded-lg p-3 text-sm shadow-sm';
         }
 
+        const senderLabel = sender === 'agent' ? 'ATENDENTE' : sender === 'customer' ? 'CLIENTE' : 'SISTEMA';
+
         div.innerHTML = `
-          <p class="font-bold text-[11px] opacity-75">${msg.sender.toUpperCase()}</p>
+          <p class="font-bold text-[11px] opacity-75">${senderLabel}</p>
           <p>${msg.text}</p>
-          <span class="text-[10px] block text-right mt-1 opacity-60">${msg.timestamp}</span>
+          <span class="text-[10px] block mt-1 opacity-60 ${sender === 'customer' || sender === 'agent' ? 'text-right' : 'text-center'}">${msg.timestamp}</span>
         `;
+
         messagesContainer.appendChild(div);
       });
+
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Buscar dados do servidor
     async function loadChat() {
-      const res = await fetch(`/api/chats/${orderId}`);
-      const chat = await res.json();
-      renderMessages(chat);
+      try {
+        const res = await fetch(`/api/chats/${orderId}`);
+        const chat = await res.json();
+        renderChat(chat);
+      } catch (err) {
+        console.error('Erro ao carregar chat:', err);
+      }
     }
 
     // Enviar nova mensagem
@@ -72,7 +133,7 @@
       const res = await fetch(`/api/chats/${orderId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender: 'customer', text })
+        body: JSON.stringify({ sender: currentRole === 'customer' ? 'customer' : 'agent', text })
       });
 
       if (res.ok) {
@@ -84,10 +145,19 @@
     sendBtn.addEventListener('click', sendMessage);
     msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
+    const roleCustomerBtn = document.getElementById('role-customer-btn');
+    const roleDriverBtn = document.getElementById('role-driver-btn');
+
+    if (roleCustomerBtn) roleCustomerBtn.addEventListener('click', () => setRole('customer'));
+    if (roleDriverBtn) roleDriverBtn.addEventListener('click', () => setRole('driver'));
+
+    // Inicializa o estado dos botões e placeholder
+    setRole('customer');
+
     // Carga inicial
     loadChat();
-    // Atualiza o chat a cada 3 segundos de forma simples (polling)
-    setInterval(loadChat, 3000);
+    // Atualiza o chat a cada 2 segundos de forma simples (polling)
+    setInterval(loadChat, 2000);
   </script>
 </body>
 </html>
